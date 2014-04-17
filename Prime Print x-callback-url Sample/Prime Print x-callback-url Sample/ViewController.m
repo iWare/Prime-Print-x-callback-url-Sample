@@ -36,7 +36,7 @@
     NSString *scheme = [self scheme];
     NSString *applicationName = [self applicationName];
     if(scheme && applicationName) {
-        NSString *urlString = [NSString stringWithFormat:@"primeprint-x-callback-url://x-callback-url/clipboard-print?x-success=%@://x-callback-url&x-source=%@", scheme, applicationName];
+        NSString *urlString = [NSString stringWithFormat:@"primeprint-x-callback-url://x-callback-url/clipboard-print?x-success=%@://x-callback-url/printResult&x-source=%@", scheme, applicationName];
         
         // append print parameter
         NSString *paramString = [urlString stringByAppendingString:[self printParameter]];
