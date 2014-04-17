@@ -45,8 +45,10 @@
 {
     NSDictionary *callbackInformation = [AppDelegate callbackDictionary:url];
     if(callbackInformation) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:callbackInformation[@"errorMessage"] message:nil delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-        [alert show];
+        if([callbackInformation[@"x-callback-url-Action"] isEqualToString:@"printResult"]) {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:callbackInformation[@"x-source"] message:callbackInformation[@"errorMessage"] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            [alert show];
+        }
     }
     return YES;
 }
@@ -59,20 +61,25 @@
     
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
     
-    NSArray *pairs = [url.query componentsSeparatedByString:@"&"];
-    [pairs enumerateObjectsUsingBlock:^(NSString *pair, NSUInteger idx, BOOL *stop) {
-        NSArray *comps = [pair componentsSeparatedByString:@"="];
-        if (comps.count >= 2) {
-            NSMutableString *str = [NSMutableString stringWithString:comps[1]];
-            for(NSInteger i = 2 ; i < comps.count ; i++) {
-                [str appendFormat:@"=%@", comps[i]];
-            }
-            NSString *value = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            [result setObject:value forKey:comps[0]];
-        } else if(comps.count > 2) {
-            
+    if([url.host isEqualToString:@"x-callback-url"] ) {
+        if(url.lastPathComponent) {
+            result[@"x-callback-url-Action"] = url.lastPathComponent;
         }
-    }];
+        NSArray *pairs = [url.query componentsSeparatedByString:@"&"];
+        [pairs enumerateObjectsUsingBlock:^(NSString *pair, NSUInteger idx, BOOL *stop) {
+            NSArray *comps = [pair componentsSeparatedByString:@"="];
+            if (comps.count >= 2) {
+                NSMutableString *str = [NSMutableString stringWithString:comps[1]];
+                for(NSInteger i = 2 ; i < comps.count ; i++) {
+                    [str appendFormat:@"=%@", comps[i]];
+                }
+                NSString *value = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                [result setObject:value forKey:comps[0]];
+            } else if(comps.count > 2) {
+                
+            }
+        }];
+    }
     
     return result;
     
